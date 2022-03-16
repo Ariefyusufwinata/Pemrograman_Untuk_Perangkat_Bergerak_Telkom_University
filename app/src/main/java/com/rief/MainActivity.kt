@@ -2,9 +2,12 @@ package com.rief
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.TextUtils
-import android.util.Log
-import android.widget.Toast
+import android.view.Menu
+import android.view.MenuItem
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.rief.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -13,90 +16,61 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.apply {
-            btnCount.setOnClickListener {
-               countButton()
-            }
+        //This for logging list data of animals
+        //Log.d("Data To Main", "The mount of data is ${getData().size}")
 
-            btnReset.setOnClickListener {
-                resetButton()
-            }
+        //This binding added from layout activity with id recycler
+        with(binding.recyclerView) {
+            addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
+            //This For Implement Grid Layout
+            //layoutManager = GridLayoutManager(this@MainActivity, 2)
+            adapter = MainAdapter(getData())
+            setHasFixedSize(true)
         }
     }
 
-    private fun countButton() {
+    private fun getData(): List<Hewan> {
+        return listOf(
+            Hewan("Angsa","Unggas", "Cygnus olor", R.drawable.angsa),
+            Hewan("Ayam","Unggas", "Gallus gallus", R.drawable.ayam),
+            Hewan("Bebek","Unggas", "Cairina moschata", R.drawable.bebek),
+            Hewan("Domba","Mamalia", "Ovis ammon", R.drawable.domba),
+            Hewan("Kalkun","Unggas", "Meleagris gallopavo", R.drawable.kalkun),
+            Hewan("Kambing","Mamalia", "Capricornis sumatrensis", R.drawable.kambing),
+            Hewan("Kelinci","Mamalia", "Oryctolagus cuniculus", R.drawable.kelinci),
+            Hewan("Kerbau","Mamalia", "Bubalus bubalis", R.drawable.kerbau),
+            Hewan("Kuda","Mamalia", "Equus caballus", R.drawable.kuda),
+            Hewan("Sapi","Mamalia", "Bos taurus", R.drawable.sapi),
 
-        val weight = binding.edtBerat.text.toString()
-        val height = binding.edtTinggi.text.toString()
-        val isGender = binding.radioGroup.checkedRadioButtonId
-
-        when {
-            TextUtils.isEmpty(weight) -> {
-                binding.edtBerat.requestFocus()
-                Toast.makeText(this, "Anda belum menambahkan berat badan!", Toast.LENGTH_SHORT).show()
-                return
-            }
-            TextUtils.isEmpty(height) -> {
-                binding.edtTinggi.requestFocus()
-                Toast.makeText(this, "Anda belum menambahkan tinggi badan!", Toast.LENGTH_SHORT).show()
-                return
-            }
-            isGender == -1 -> {
-                Toast.makeText(this, "Mohon pilih jenis kelamin anda!", Toast.LENGTH_SHORT).show()
-                return
-            }
-            else -> {
-                val tall = height.toFloat() / 100
-                val count = weight.toFloat() / (tall * tall)
-
-                val gender = isGender == R.id.priaRadioButton
-                val des = String.format("%.2f", count)
-
-                val getCat = getBMI(count, gender)
-
-                binding.apply {
-                    resultBMI.text = "BMI : $des"
-                    resultCategory.text = "Category: $getCat"
-                }
-            }
-
-
-        }
-
+        )
     }
 
-    private fun getBMI(count : Float, isGender : Boolean) : String {
-        val bmi =
-            when(isGender){
-                true -> {
-                    when {
-                        count < 20.5 -> "Kurus"
-                        count >= 27.0 -> "Gemuk"
-                        else -> "Ideal"
-                    }
-                }
-                false -> {
-                    when {
-                        count < 18.5 -> "Kurus"
-                        count >= 25.0 -> "Gemuk"
-                        else -> "Ideal"
-                    }
-                }
-            }
-        return bmi
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menu?.add(Menu.NONE, 1, Menu.NONE, "Linear Layout")
+        menu?.add(Menu.NONE, 2, Menu.NONE, "Grid Layout")
+        return super.onCreateOptionsMenu(menu)
     }
 
-    private fun resetButton(){
-        binding.apply {
-            edtBerat.text.clear()
-            edtTinggi.text.clear()
-            radioGroup.clearCheck()
-            resultBMI.text = " "
-            resultCategory.text = " "
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            1 ->
+                with(binding.recyclerView) {
+                    addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                    adapter = MainAdapter(getData())
+                    setHasFixedSize(true)
+                }
+            2 ->
+                with(binding.recyclerView) {
+                    addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
+                    layoutManager = GridLayoutManager(this@MainActivity, 2)
+                    adapter = GridAdapter(getData())
+                    setHasFixedSize(true)
+                }
         }
+        return super.onOptionsItemSelected(item)
     }
 }
